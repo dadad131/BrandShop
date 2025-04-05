@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Брендовый магазин</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="logo">BrandShop</div>
+        <div class="menu-toggle" onclick="toggleMobileMenu()">☰</div>
+        <nav>
+            <div class="mobile-menu" id="mobile-menu">
+                <a href="imagery.html">Подборка образов</a>
+                <a href="blog.html">Блоги</a>
+                <a href="archive.html" class="active">Архив коллекций</a>
+                <a href="#" onclick="toggleCart()">Корзина</a>
+                <a href="account.html" onclick="closeMobileMenu()">Личный кабинет</a>
+            </div>
+            <a href="imagery.html">Подборка образов</a>
+            <a href="blog.html">Блоги</a>
+            <a href="archive.html" class="active">Архив коллекций</a>
+            <a href="#" onclick="toggleCart(0)">Корзина (<span id="cart-count">0</span>)</a>
+            <a href="account.html">Личный кабинет</a>
+        </nav>
+    </header>
+
+    <div class="hero-banner">
+        <style>
+            .my-link {
+              color: #0066cc;
+              text-decoration: none;
+              font-weight: bold;
+              transition: color 0.3s;
+            }
+            .my-link:hover {
+              color: #ff6600;
+              text-decoration: underline;
+            }
+          </style>
+          
+          <a href="https://BrandShop" class="my-link">file:///C:/Users/rauld/Desktop/RR/index.html</a>
+        <h1>Эксклюзивные бренды со скидкой до 50%</h1>
+        <p>Успейте купить модные новинки сезона</p>
+        <button onclick="showCategory('all')" 
+                style="background: #ff6b6b; color: white; border: none; padding: 12px 30px; border-radius: 25px; cursor: pointer; margin-top: 20px;"
+                onmouseover="this.style.transform='scale(1.1)'"
+                onmouseout="this.style.transform='scale(1)'"
+        >Смотреть каталог</button>
+    </div>
+
+    <div class="container">
+        <div class="bestsellers">
+            <div class="bestseller-item">
+                <img src="images/ban1.webp">
+                <div class="bestseller-content">
+                    <h3>Летняя распродажа</h3>
+                    <p>Скидки до 70% на коллекцию 2023</p>
+                </div>
+            </div>
+            <div class="bestseller-item">
+                <img src="images/ban2.webp">
+                <div class="bestseller-content">
+                    <h3>Новые поступления</h3>
+                    <p>Самые модные тренды этого сезона</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="filters">
+            <button class="gender-switch" onclick="toggleGender()">Мужская одежда</button>
+            <div class="category-btns">
+                <button onclick="showCategory('all')">Все</button>
+                <button onclick="showCategory('shirts')">Рубашки</button>
+                <button onclick="showCategory('pants')">Штаны</button>
+                <button onclick="showCategory('shoes')">Обувь</button>
+            </div>
+        </div>
+
+        <div class="products" id="products" name="products_name"></div>
+    </div>
+
+    <div id="cart-modal" class="cart-modal">
+        <div class="cart-content">
+            <h2>Ваша корзина</h2>
+            <div id="cart-items"></div>
+            <div class="total">Итого: <span class="total-price"> 0 </span> ₽ </div>
+            <button onclick="checkout()">Оформить заказ</button>
+            <button onclick="toggleCart()">Закрыть</button>
+        </div>
+    </div>
+
+    <footer>
+        
+        &copy; 2023 BrandShop. Все права защищены.
+    </footer>
+
+    <script>
+        let currentGender = 'male';
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        let wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+
+        const products = {
+            male: {
+                shirts: 
+                [
+                    {id: 1, name: 'Рубашка из смесового льна с воротником мао', price: 3999, image: 'images/shirt1.jpg'},
+                    {id: 2, name: 'Рубашка из смесового льна', price: 3999, image: 'images/shirt2.jpg'},
+                    {id: 3, name: 'Рубашка из смесового льна', price: 2999, image: 'images/shirt3.jpg'},
+                    {id: 4, name: 'Рубашка из смесового льна в полоску', price: 1999, image: 'images/shirt4.jpg'},
+                    {id: 5, name: 'Рубашка из смесового льна', price: 3999, image: 'images/shirt5.jpg'},
+                    {id: 6, name: 'Текстильная рубашка', price: 2999, image: 'images/shirt6.jpg'}
+                ],
+                pants: 
+                [
+                    {id: 7, name: 'Брюки из лиоцелла', price: 4999, image: 'images/pants1.jpg'},
+                    {id: 8, name: 'Брюки изо льна', price: 5999, image: 'images/pants2.jpg'},
+                    {id: 9, name: 'Брюки-чиносы из сатина', price: 4999, image: 'images/pants3.jpg'},
+                    {id: 10, name: 'Брюки-чиносы из твила', price: 3999, image: 'images/pants4.jpg'},
+                    {id: 11, name: 'Прямые джинсы', price: 4999, image: 'images/pants5.jpg'},
+                    {id: 12, name: 'Брюки-чиносы из твила', price: 5999, image: 'images/pants6.jpg'}
+                ],
+                shoes: 
+                [
+                    {id: 13, name: 'Кеды с замшевыми вставками', price: 2999, image: 'images/shoes1.jpg'},
+                    {id: 14, name: 'Кеды с контрастным задником', price: 5999, image: 'images/shoes2.jpg'},
+                    {id: 15, name: 'Кеды с замшевыми вставками', price: 3999, image: 'images/shoes3.jpg'},
+                    {id: 16, name: 'Кроссовки', price: 3999, image: 'images/shoes4.jpg'},
+                    {id: 17, name: 'Кроссовки с замшевыми вставками', price: 3999, image: 'images/shoes5.jpg'},
+                    {id: 18, name: 'Кроссовки с замшевыми вставками', price: 2999, image: 'images/shoes6.jpg'}
+                ]
+            },
+            female: {
+                shirts: 
+                [
+                    {id: 13, name: 'Фланелевая рубашка в клетку', price: 3999, image: 'images/wshirt1.jpg'},
+                    {id: 14, name: 'Джинсовая рубашка', price: 3999, image: 'images/wshirt2.jpg'},
+                    {id: 15, name: 'Хлопковая рубашка с контрастными деталями', price: 2999, image: 'images/wshirt3.jpg'},
+                    {id: 16, name: 'Фланелевая рубашка в клетку', price: 3999, image: 'images/wshirt4.jpg'},
+                    {id: 17, name: 'Рубашка из искусственной замши', price: 2999, image: 'images/wshirt5.jpg'},
+                    {id: 18, name: 'Рубашка из хлопка с контрастными манжетами', price: 2999, image: 'images/wshirt6.jpg'}
+                ],
+                pants: 
+                [
+                    {id: 13, name: 'Широкие джинсы с лампасами', price: 5999, image: 'images/wpants1.jpg'},
+                    {id: 14, name: 'Широкие джинсы со средней посадкой', price: 2999, image: 'images/wpants2.jpg'},
+                    {id: 15, name: 'Укороченные прямые джинсы', price: 4999, image: 'images/wpants3.jpg'},
+                    {id: 16, name: 'Джинсы Balloon', price: 5999, image: 'images/wpants4.jpg'},
+                    {id: 17, name: 'Прямые свободные джинсы', price: 4999, image: 'images/wpants5.jpg'},
+                    {id: 18, name: 'Джинсы Balloon', price: 4999, image: 'images/wpants6.jpg'}
+                
+                ],
+                shoes: 
+                [
+                    {id: 13, name: 'Кеды', price: 2999, image: 'images/wshoes1.jpg'},
+                    {id: 14, name: 'Кеды', price: 3999, image: 'images/wshoes2.jpg'},
+                    {id: 15, name: 'Кеды', price: 1999, image: 'images/wshoes3.jpg'},
+                    {id: 16, name: 'Балетки', price: 2999, image: 'images/wshoes4.jpg'},
+                    {id: 17, name: 'Туфли на низком каблуке', price: 2999, image: 'images/wshoes5.jpg'},
+                    {id: 18, name: 'Туфли на низком каблуке', price: 2999, image: 'images/wshoes6.jpg'}
+                ]
+            }
+        };
+
+        function renderProducts(category = 'all') {
+            const container = document.getElementById('products');
+            container.innerHTML = '';
+            
+            let items = [];
+            if (category === 'all') {
+                items = [...products[currentGender].shirts, ...products[currentGender].pants, ...products[currentGender].shoes];
+            } else {
+                items = products[currentGender][category];
+            }
+
+            items.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.innerHTML = `
+                    <img src="${item.image}" alt="${item.name}">
+                    <div class="product-name">${item.name}</div>
+                    <div class="product-price">${item.price} ₽</div>
+                    <button class="add-to-cart" onclick="addToCart(${item.id})">В корзину</button>
+                    <button onclick="addToWishlist(${item.id})" style="background: #ff6b6b; margin-top: 10px; width: 100%; border-radius: 5px;">В избранное</button>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function toggleGender() {
+            currentGender = currentGender === 'male' ? 'female' : 'male';
+            document.querySelector('.gender-switch').textContent = 
+                currentGender === 'male' ? 'Мужская одежда' : 'Женская одежда';
+            renderProducts();
+        }
+
+        function showCategory(category) {
+            renderProducts(category);
+        }
+
+        function addToCart(productId) {
+            const product = findProduct(productId);
+            if (product) {
+                cart.push(product);
+                localStorage.setItem('cart', JSON.stringify(cart));
+                updateCartCount();
+                updateCart();
+                alert('Товар добавлен в корзину!');
+            }
+        }
+
+        function findProduct(id) {
+            const allProducts = [...products.male.shirts, ...products.male.pants, ...products.male.shoes,
+                                ...products.female.shirts, ...products.female.pants, ...products.female.shoes];
+            return allProducts.find(p => p.id === id);
+        }
+
+        function addToWishlist(productId) {
+            const product = findProduct(productId);
+            if (product) {
+                wishlist.push(product);
+                localStorage.setItem('wishlist', JSON.stringify(wishlist));
+                alert('Товар добавлен в избранное!');
+            }
+        }
+
+        function updateCartCount() {
+            document.getElementById('cart-count').textContent = cart.length;
+        }
+
+        function toggleCart() {
+            const modal = document.getElementById('cart-modal');
+            modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
+            updateCart();
+        }
+
+        function updateCart() {
+            const cartItems = document.getElementById('cart-items');
+            const total = document.querySelector('.total-price');
+            
+            cartItems.innerHTML = '';
+            let sum = 0;
+
+            cart.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'cart-item';
+                div.innerHTML = `
+                    ${item.name} - ${item.price} ₽
+                    <button class="remove-item" onclick="removeFromCart(${item.id})">Удалить</button>
+                `;
+                cartItems.appendChild(div);
+                sum += item.price;
+            });
+
+            total.textContent = sum;
+            updateCartCount();
+        }
+
+        function removeFromCart(productId) {
+            const index = cart.findIndex(item => item.id === productId);
+            if (index !== -1) {
+                cart.splice(index, 1);
+                localStorage.setItem('cart', JSON.stringify(cart));
+                updateCart();
+            }
+        }
+
+        function checkout() {
+            if (cart.length === 0) {
+                alert('Корзина пуста!');
+                return;
+            }
+            
+            const order = {
+                id: Date.now(),
+                date: new Date().toLocaleDateString(),
+                items: cart,
+                total: cart.reduce((sum, item) => sum + item.price, 0)
+            };
+
+            const orders = JSON.parse(localStorage.getItem('orders')) || [];
+            orders.push(order);
+            localStorage.setItem('orders', JSON.stringify(orders));
+
+            alert(`Заказ на сумму ${order.total} ₽ оформлен!`);
+            cart = [];
+            localStorage.removeItem('cart');
+            updateCart();
+            toggleCart();
+        }
+
+        // Мобильное меню
+        function toggleMobileMenu() {
+            document.getElementById('mobile-menu').classList.toggle('active');
+        }
+        function closeMobileMenu() {
+            document.getElementById('mobile-menu').classList.remove('active');
+        }
+
+        // Инициализация
+        updateCartCount();
+        renderProducts();
+    </script>
+     <div class="container">
+        <h3>Контакты</h3>
+            <p><strong>Телефон:</strong> +7 (123) 456-78-90</p>
+            <p><strong>Email:</strong> info@brandshop.ru</p>
+            <p><strong>Адрес:</strong> г. Москва, ул. Примерная, д. 123</p>
+        <p>Связаться с нами: <a href="mailto:info@rickowens.shop">info@BrandShop</a></p>
+        <div class="social-icons">
+            <h3>Мы в соцсетях</h3>
+            <p>
+                <a href="https://vk.com/brandshop" target="_blank">VK</a> |
+                <a href="https://t.me/brandshop" target="_blank">Telegram</a> |
+                <a href="https://instagram.com/brandshop" target="_blank">Instagram</a>
+            </p>
+        </div>
+        <script>
+            // Исправленная корзина (ничего больше не меняется)
+            let cart = JSON.parse(localStorage.getItem('simple-cart')) || [];
+        
+            // Функция добавления товара
+            function addToCart(productId) {
+                // Находим товар (используем вашу существующую функцию findProduct)
+                const product = findProduct(productId);
+                if (!product) {
+                    console.error("Товар не найден");
+                    return;
+                }
+        
+                // Добавляем товар в корзину
+                cart.push({
+                    id: product.id,
+                    name: product.name,
+                    price: product.price
+                });
+        
+                // Сохраняем в localStorage
+                localStorage.setItem('simple-cart', JSON.stringify(cart));
+                
+                // Обновляем счетчик
+                updateCartCount();
+                alert("Товар добавлен в корзину!");
+            }
+        
+            // Функция обновления счетчика
+            function updateCartCount() {
+                const countElement = document.getElementById('cart-count');
+                if (countElement) {
+                    countElement.textContent = cart.length;
+                }
+            }
+        
+            // Функция оформления заказа
+            function checkout() {
+                if (cart.length === 0) {
+                    alert("Корзина пуста!");
+                    return;
+                }
+                
+                const total = cart.reduce((sum, item) => sum + item.price, 0);
+                alert(`Заказ оформлен! Сумма: ${total} ₽`);
+                
+                // Очищаем корзину
+                cart = [];
+                localStorage.removeItem('simple-cart');
+                updateCartCount();
+            }
+        
+            // Инициализация при загрузке
+            document.addEventListener('DOMContentLoaded', function() {
+                updateCartCount();
+            });
+        </script>
+<script>
+    // Минимальная рабочая корзина
+    const simpleCart = {
+      items: JSON.parse(localStorage.getItem('cart-items')) || [],
+    
+      // Добавить товар
+      add(productId) {
+        const product = this.findProduct(productId);
+        if (!product) return;
+        
+        this.items.push(product);
+        this.save();
+        alert(`Товар "${product.name}" добавлен!`);
+        this.updateCounter();
+      },
+    
+      // Найти товар (замените на вашу реальную функцию)
+      findProduct(id) {
+        // Временная заглушка - замените на вашу функцию поиска товара!
+        const allProducts = [
+          {id: 1, name: "Рубашка", price: 1999},
+          {id: 2, name: "Джинсы", price: 2999}
+        ];
+        return allProducts.find(p => p.id === id);
+      },
+    
+      // Оформить заказ
+      checkout() {
+        if (this.items.length === 0) {
+          alert("Корзина пуста!");
+          return;
+        }
+        
+        const total = this.items.reduce((sum, item) => sum + item.price, 0);
+        alert(`Спасибо за заказ! Сумма: ${total} ₽`);
+        
+        this.items = [];
+        this.save();
+        this.updateCounter();
+      },
+    
+      // Обновить счетчик
+      updateCounter() {
+        const counter = document.getElementById('cart-count');
+        if (counter) counter.textContent = this.items.length;
+      },
+    
+      // Сохранить в localStorage
+      save() {
+        localStorage.setItem('cart-items', JSON.stringify(this.items));
+      }
+    };
+    
+    // Инициализация при загрузке
+    document.addEventListener('DOMContentLoaded', () => {
+      simpleCart.updateCounter();
+    });
+    </script>
+    <script>
+        // Объект корзины
+        const cart = {
+          items: JSON.parse(localStorage.getItem('cart')) || [],
+        
+          // Добавить товар в корзину
+          addToCart(productId) {
+            const product = this.findProduct(productId);
+            if (!product) return;
+            
+            this.items.push(product);
+            this.save();
+            this.updateCounter();
+            alert(`Товар "${product.name}" добавлен в корзину!`);
+          },
+        
+          // Найти товар (замените на вашу функцию)
+          findProduct(id) {
+            // Временная заглушка - замените на вашу функцию!
+            const allProducts = [
+              {id: 1, name: "Рубашка", price: 1999},
+              {id: 2, name: "Джинсы", price: 2999}
+            ];
+            return allProducts.find(p => p.id === id);
+          },
+        
+          // Обновить счетчик
+          updateCounter() {
+            const counter = document.getElementById('cart-counter');
+            if (!counter) {
+              // Создаем счетчик если его нет
+              const newCounter = document.createElement('span');
+              newCounter.id = 'cart-counter';
+              newCounter.textContent = this.items.length;
+              newCounter.style.marginLeft = '5px';
+              newCounter.style.backgroundColor = 'red';
+              newCounter.style.color = 'white';
+              newCounter.style.borderRadius = '50%';
+              newCounter.style.padding = '2px 6px';
+              newCounter.style.fontSize = '12px';
+              
+              // Находим кнопку корзины и добавляем счетчик
+              const cartButton = document.querySelector('a[onclick*="toggleCart"]');
+              if (cartButton) {
+                cartButton.appendChild(newCounter);
+              }
+            } else {
+              // Обновляем существующий счетчик
+              counter.textContent = this.items.length;
+            }
+          },
+        
+          // Сохранить корзину
+          save() {
+            localStorage.setItem('cart', JSON.stringify(this.items));
+          }
+        };
+        
+        // Инициализация при загрузке
+        document.addEventListener('DOMContentLoaded', () => {
+          cart.updateCounter();
+        });
+        </script>
+        
+            
+</body>
+
+</html>
